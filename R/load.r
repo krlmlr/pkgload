@@ -245,10 +245,18 @@ load_all <- function(path = ".", reset = TRUE, compile = NA,
   propagate_ns(package)
 
   if (isTRUE(warn_conflicts)) {
-    warn_if_conflicts(package, getNamespaceExports(out$env), names(globalenv()))
+    warn_if_conflicts(package, getNamespaceExports(out$env), global_funs())
   }
 
   invisible(out)
+}
+
+global_funs <- function() {
+  global_names <- names(globalenv())
+
+  funs <- mget(global_names, globalenv(), mode = "function", ifnotfound = list(NULL))
+  is_fun <- !vapply(funs, is.null, logical(1))
+  global_names[is_fun]
 }
 
 warn_if_conflicts <- function(package, nms1, nms2) {
